@@ -1,0 +1,34 @@
+image: node:latest
+
+stages:
+  - build
+  - test
+  - deploy
+
+build:
+  stage: build
+  script:
+    - yarn
+    - yarn generate
+  artifacts:
+    paths:
+      - dist/
+  only:
+    - master
+
+test:
+  stage: test
+  script:
+    - yarn
+    - yarn build
+    - yarn test
+  only:
+    - merge_requests
+
+deploy:
+  stage: deploy
+  script:
+    - npm -g install cloudron-surfer
+    - surfer put --token $SURFER_KEY --server $SURFER_DOMAIN dist/* /
+  only:
+    - master
